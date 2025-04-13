@@ -48,6 +48,20 @@ try:
     login_button.click()
     time.sleep(2)
 
+    user_name_with_login_history = driver.find_element(
+        By.XPATH,
+        "/html/body/div/div/form[1]/div[1]/div/table/tbody/tr[1]/td/div/span",
+    )
+    username = (
+        (
+            user_name_with_login_history.text.split(" ")[0]
+            + user_name_with_login_history.text.split(" ")[1]
+        )
+        .replace("\u3000", " ")
+        .replace("さん", "")
+    )
+    print(f"login as {username}")
+
     notice_link = driver.find_element(
         By.XPATH,
         "/html/body/div/div/form[3]/table[2]/tbody/tr/td[4]/table/tbody/tr/td/div/table/tbody/tr/td/table/tbody/tr[1]/td/table[2]/tbody/tr/td/a/span",
@@ -77,6 +91,8 @@ try:
         )
         if unread_icon:
             status = "未読"
+        else:
+            continue
 
         important_icon = row_element.find_elements(
             By.XPATH, ".//td[2]/img[@src='../../image/topic.gif']"
@@ -130,7 +146,7 @@ try:
 
 finally:
     if driver:
-        print("ブラウザを終了します。")
+        print("scraping finished")
         driver.quit()
 
 
@@ -140,7 +156,7 @@ if notices:
     if not post_url:
         raise ValueError("POST_URL environment variable is not set")
 
-    payload = {"notices": notices}
+    payload = {"username": username, "notices": notices}
 
     try:
         response = requests.post(post_url, json=payload, timeout=30)
@@ -148,7 +164,7 @@ if notices:
 
         response_data = response.json()
         print("response from GAS:")
-        print(json.dumps(response_data, indent=2, ensure_ascii=False))
+        print(json.dumps(response_data, indent=4, ensure_ascii=False))
 
         if response_data.get("status") != "success":
             print("something went wrong")
