@@ -1,16 +1,13 @@
 from selenium import webdriver
 from selenium.webdriver.common.by import By
-from selenium.common.exceptions import NoSuchElementException
 import time
 from dotenv import load_dotenv
 import os
 import re
 import requests
-import json  # JSONレスポンスをパースするためにインポート
-from fastapi import Depends, HTTPException, status
+import json
 from fastapi import APIRouter
-from sqlalchemy.orm.session import Session
-from sqlalchemy.exc import IntegrityError
+from schema.schema import GetNotice
 
 
 router = router = APIRouter(
@@ -20,17 +17,18 @@ router = router = APIRouter(
 )
 
 
-@router.get("/get_notice")
-async def get_notice():
+@router.post("/get_notice")
+async def get_notice(req: GetNotice):
     load_dotenv()
 
-    driver = None  # finallyブロックで参照できるよう、tryの外で初期化
+    driver = None
     notices: list = []
 
     try:
         driver = webdriver.Chrome()
-        user = os.getenv("USERNAME")
-        password = os.getenv("PASSWORD")
+        user = req.user_id
+        password = req.passward
+        email = req.email
 
         if not user or not password:
             raise ValueError("set USERNAME and PASSWORD in .env")
