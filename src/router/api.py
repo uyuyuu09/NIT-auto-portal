@@ -26,7 +26,7 @@ async def get_notice(req: GetNotice):
 
     try:
         driver = webdriver.Chrome()
-        user = req.user_id
+        user = req.userid
         password = req.passward
         email = req.email
 

@@ -6,6 +6,6 @@ load_dotenv()
 
 
 class GetNotice(BaseModel):
-    user_id: str = os.getenv("USERNAME")
+    userid: str = os.getenv("USERID")
     passward: str = os.getenv("PASSWORD")
     email: str = os.getenv("EMAIL")
